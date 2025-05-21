@@ -9,6 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  cupertino_icons:
+  firebase_auth: 
+  firebase_core: 
+  cloud_firestore: 
+  provider: 
+
+  english_words: 
 
 dev_dependencies:
   flutter_test:
