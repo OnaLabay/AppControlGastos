@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../services/firebase_service.dart';
 import '../widgets/option_modal.dart';
 
+
 class InicioPage extends StatelessWidget {
   const InicioPage({Key? key}) : super(key: key);
 
