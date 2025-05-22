@@ -4,11 +4,19 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.7.2
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.6
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.16.0
+  cloud_firestore: ^4.17.5
+  fl_chart: ^1.0.0     # la última versión estable
+  english_words: ^4.0.0
 
 dev_dependencies:
   flutter_test:

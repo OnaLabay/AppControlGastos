@@ -25,4 +25,20 @@ class FirebaseService {
       },
     );
   }
+  Stream<Map<String, double>> getGastosPorCategoria() {
+    return _db
+      .collection('usuarios')
+      .doc('usuario_demo')
+      .collection('gastos')            // ajusta si tu colección se llama distinto
+      .snapshots()
+      .map((snap) {
+        final totals = <String, double>{};
+        for (var doc in snap.docs) {
+          final cat = doc.data()['categoria'] as String;
+          final monto = (doc.data()['monto'] as num).toDouble();
+          totals[cat] = (totals[cat] ?? 0) + monto;
+        }
+        return totals;
+      });
+  }
 }
