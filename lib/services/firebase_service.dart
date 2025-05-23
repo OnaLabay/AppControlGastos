@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  //final String _uid = 'usuario_demo';
 
   Stream<Map<String, dynamic>> getResumen() {
     return _db.collection('usuarios').doc('usuario_demo').snapshots().map(
@@ -13,9 +14,9 @@ class FirebaseService {
             'saldo': 0,
           };
         }
-        final data = doc.data()!;
-        final ingresos = data['ingresos'] ?? 0;
-        final gastos = data['gastos'] ?? 0;
+         final data = doc.data() ?? {};
+        final ingresos = (data['ingresos'] as num?)?.toDouble() ?? 0.0;
+        final gastos   = (data['gastos']   as num?)?.toDouble() ?? 0.0;
         final saldo = ingresos - gastos;
         return {
           'ingresos': ingresos,
@@ -40,5 +41,30 @@ class FirebaseService {
         }
         return totals;
       });
+  }
+  Future<void> addIngreso(double monto) {
+    return _db
+      .collection('usuarios')
+      .doc('usuario_demo')
+      .update({
+        'ingresos': FieldValue.increment(monto)
+      });
+  }
+  Future<void> addGasto(double monto, String categoria) async {
+    final userDoc = _db.collection('usuarios').doc('usuario_demo');
+    final batch = _db.batch();
+
+    batch.update(userDoc, {
+      'gastos': FieldValue.increment(monto)
+    });
+
+    final newGasto = userDoc.collection('gastos').doc();
+    batch.set(newGasto, {
+      'monto'     : monto,
+      'categoria' : categoria,
+      'fecha'     : FieldValue.serverTimestamp(),
+    });
+
+    return batch.commit();
   }
 }
