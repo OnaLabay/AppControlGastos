@@ -1,52 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:english_words/english_words.dart';
-import 'package:firebase_core/firebase_core.dart';
-import '../services/firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PantallaIngresos extends StatefulWidget {
+  const PantallaIngresos({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Control de Gastos',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 34, 255, 41),
-          ),
-        ),
-        home: MyHomePage(),
-      ),
-    );
-  }
+  State<PantallaIngresos> createState() => _PantallaIngresosState();
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _PantallaIngresosState extends State<PantallaIngresos> {
   final _tituloController = TextEditingController();
   final _montoController = TextEditingController();
   final _fechaController = TextEditingController();
-
-  int? selectedCategoria;
+  String? selectedCategoria;
 
   final List<String> categorias = [
     'Mensualidad',
@@ -55,204 +22,161 @@ class _MyHomePageState extends State<MyHomePage> {
     'Varios',
   ];
 
+  final Map<String, Color> categoriaColors = {
+    'Mensualidad': Colors.orange,
+    'Ventas': Colors.blue,
+    'Inversiones': Colors.green,
+    'Varios': Colors.purple,
+  };
+
+  void agregarIngreso() async {
+    if (_tituloController.text.isNotEmpty &&
+        _montoController.text.isNotEmpty &&
+        _fechaController.text.isNotEmpty &&
+        selectedCategoria != null) {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('ingresos')
+          .add({
+        'titulo': _tituloController.text,
+        'monto': double.tryParse(_montoController.text) ?? 0,
+        'fecha': _fechaController.text,
+        'categoria': selectedCategoria,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingreso agregado')),
+      );
+
+      cancelar();
+    }
+  }
+
+  void cancelar() {
+    _tituloController.clear();
+    _montoController.clear();
+    _fechaController.clear();
+    setState(() {
+      selectedCategoria = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.grey[300],
       body: SafeArea(
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'AGREGAR INGRESOS',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'Agregar Ingresos',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                  // TÍTULO
-                  Text('TÍTULO', style: TextStyle(fontWeight: FontWeight.bold)),
-                  _buildInputField(_tituloController),
-                  SizedBox(height: 15),
+              TextField(
+                controller: _tituloController,
+                decoration: const InputDecoration(labelText: 'Título'),
+              ),
+              const SizedBox(height: 12),
 
-                  // MONTO
-                  Text('MONTO', style: TextStyle(fontWeight: FontWeight.bold)),
-                  _buildInputField(_montoController, prefix: '\$'),
-                  SizedBox(height: 15),
+              TextField(
+                controller: _montoController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Monto', prefixText: '\$ '),
+              ),
+              const SizedBox(height: 12),
 
-                  // FECHA
-                  Text('FECHA', style: TextStyle(fontWeight: FontWeight.bold)),
-                  _buildInputField(_fechaController),
-                  SizedBox(height: 15),
+              TextField(
+                controller: _fechaController,
+                decoration: const InputDecoration(labelText: 'Fecha (dd/mm/aaaa)'),
+              ),
+              const SizedBox(height: 16),
 
-                  // CATEGORÍA
-                  Text(
-                    'CATEGORÍA',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
+              const Text('Categoría'),
+              const SizedBox(height: 8),
 
-                  SizedBox(
-                    height: 140,
-                    child: SingleChildScrollView(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(categorias.length, (index) {
-                            final isSelected = selectedCategoria == index;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: Size(180, 40),
-                                  backgroundColor:
-                                      isSelected
-                                          ? const Color.fromARGB(
-                                            255,
-                                            34,
-                                            255,
-                                            71,
-                                          )
-                                          : Colors.grey[300],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    selectedCategoria = index;
-                                  });
-                                },
-                                child: Text(
-                                  categorias[index].toUpperCase(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color:
-                                        isSelected
-                                            ? Colors.white
-                                            : Colors.black87,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  border: Border.all(color: Colors.grey[600]!),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SizedBox(
+                  height: 240,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: categorias.map((categoria) {
+                        final isSelected = selectedCategoria == categoria;
+                        final color = categoriaColors[categoria]!;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedCategoria = categoria;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: isSelected ? color : Colors.white,
+                              foregroundColor: isSelected ? Colors.white : color,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                            );
-                          }),
-                        ),
-                      ),
+                              side: BorderSide(color: color),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            ),
+                            child: Center(child: Text(categoria)),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
+                ),
+              ),
 
-                  SizedBox(height: 25),
+              const SizedBox(height: 24),
 
-                  // BOTÓN AGREGAR
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // lógica para agregar
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 80,
-                          vertical: 14,
-                        ),
-                      ),
-                      child: Text(
-                        'AGREGAR',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
-                        ),
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: agregarIngreso,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
+                    child: const Text('Agregar'),
                   ),
-
-                  SizedBox(height: 10),
-
-                  // BOTÓN CANCELAR
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // lógica para cancelar
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 80,
-                          vertical: 14,
-                        ),
-                      ),
-                      child: Text(
-                        'CANCELAR',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
-                        ),
-                      ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: cancelar,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
+                    child: const Text('Cancelar'),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey[600],
-        backgroundColor: Colors.grey[100],
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: ''),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_rounded),
-            label: '',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_rounded), label: ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputField(TextEditingController controller, {String? prefix}) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        prefix:
-            prefix != null
-                ? Text(prefix, style: TextStyle(fontWeight: FontWeight.bold))
-                : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 14,
-        ),
-      ),
-      keyboardType:
-          prefix == '\$'
-              ? TextInputType.numberWithOptions(decimal: true)
-              : TextInputType.text,
     );
   }
 }
