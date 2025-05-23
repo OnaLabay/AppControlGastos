@@ -1,52 +1,18 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:app_gastos/services/firebase_options.dart';
-
-
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PantallaGastos extends StatefulWidget {
+  const PantallaGastos({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
-        home: MyHomePage(),
-      ),
-    );
-  }
+  State<PantallaGastos> createState() => _PantallaGastosState();
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _tituloController = TextEditingController();
-  final TextEditingController _montoController = TextEditingController();
-  final TextEditingController _fechaController = TextEditingController();
+class _PantallaGastosState extends State<PantallaGastos> {
+  final _tituloController = TextEditingController();
+  final _montoController = TextEditingController();
+  final _fechaController = TextEditingController();
   String? selectedCategoria;
 
   final List<String> categorias = [
@@ -61,23 +27,43 @@ class _MyHomePageState extends State<MyHomePage> {
     'varios',
   ];
 
-  void agregarGasto() {
+  final Map<String, Color> categoriaColors = {
+    'alimentos': Colors.orange,
+    'educacion': Colors.blue,
+    'transporte': Colors.green,
+    'vivienda': Colors.brown,
+    'salud': Colors.red,
+    'entretenimiento': Colors.purple,
+    'ropa': Colors.pink,
+    'deudas': Colors.teal,
+    'varios': Colors.grey,
+  };
+
+  void agregarGasto() async {
     if (_tituloController.text.isNotEmpty &&
         _montoController.text.isNotEmpty &&
         _fechaController.text.isNotEmpty &&
         selectedCategoria != null) {
-      print('Título: ${_tituloController.text}');
-      print('Monto: ${_montoController.text}');
-      print('Fecha: ${_fechaController.text}');
-      print('Categoría: $selectedCategoria');
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('gastos')
+          .add({
+        'titulo': _tituloController.text,
+        'monto': double.tryParse(_montoController.text) ?? 0,
+        'fecha': _fechaController.text,
+        'categoria': selectedCategoria,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gasto agregado')),
+        const SnackBar(content: Text('Gasto agregado')),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Completá todos los campos')),
-      );
+
+      cancelar();
     }
   }
 
@@ -100,124 +86,110 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Agregar gastos',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-
-              Text('Título'),
-              TextField(
-                controller: _tituloController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              Center(
+                child: Text(
+                  'Agregar gastos',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-              Text('Monto'),
+              TextField(
+                controller: _tituloController,
+                decoration: const InputDecoration(labelText: 'Título'),
+              ),
+              const SizedBox(height: 12),
+
               TextField(
                 controller: _montoController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  prefixText: '\$ ',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                ),
+                decoration: const InputDecoration(labelText: 'Monto', prefixText: '\$ '),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-              Text('Fecha'),
               TextField(
                 controller: _fechaController,
-                decoration: InputDecoration(
-                  hintText: 'dd/mm/aaaa',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                ),
+                decoration: const InputDecoration(labelText: 'Fecha (dd/mm/aaaa)'),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-              Text('Categoría'),
-              Expanded(
-                child: ListView(
-                  children: categorias.map((categoria) {
-                    final isSelected = selectedCategoria == categoria;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedCategoria = categoria;
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: isSelected ? Colors.black : Colors.white,
-                          foregroundColor: isSelected ? Colors.white : Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+              const Text('Categoría'),
+              const SizedBox(height: 8),
+
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  border: Border.all(color: Colors.grey[600]!),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SizedBox(
+                  height: 240, // Altura fija con scroll interno
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: categorias.map((categoria) {
+                        final isSelected = selectedCategoria == categoria;
+                        final color = categoriaColors[categoria]!;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedCategoria = categoria;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: isSelected ? color : Colors.white,
+                              foregroundColor: isSelected ? Colors.white : color,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              side: BorderSide(color: color),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            ),
+                            child: Center(child: Text(categoria)),
                           ),
-                          side: BorderSide(color: Colors.black),
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(categoria),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               ),
 
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: agregarGasto,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              const SizedBox(height: 24),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: agregarGasto,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('Agregar'),
                   ),
-                  minimumSize: Size(double.infinity, 50),
-                ),
-                child: Text('Agregar'),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: cancelar,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: cancelar,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('Cancelar'),
                   ),
-                  minimumSize: Size(double.infinity, 50),
-                ),
-                child: Text('Cancelar'),
+                ],
               ),
             ],
           ),
         ),
       ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: '',
-          ),
-        ],
-      ),
     );
   }
 }
+
+
+
