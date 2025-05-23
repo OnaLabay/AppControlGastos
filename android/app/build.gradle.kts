@@ -6,7 +6,6 @@ plugins {
 }
 
 android {
-
     namespace = "com.example.app_control_gastos"
     compileSdk = 34
 
@@ -18,7 +17,6 @@ android {
         versionName = flutter.versionName
     }
 
-
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -27,9 +25,7 @@ android {
     }
 
     kotlinOptions {
-
         jvmTarget = "11"
-
     }
 
     buildTypes {
