@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class PantallaIngresos extends StatefulWidget {
   const PantallaIngresos({super.key});
-
   @override
   State<PantallaIngresos> createState() => _PantallaIngresosState();
 }
