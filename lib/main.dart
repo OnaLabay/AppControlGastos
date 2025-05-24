@@ -4,7 +4,7 @@ import 'package:app_gastos/pages/inicio_page.dart';
 import 'package:app_gastos/pages/ingresos_page.dart';
 import 'package:app_gastos/pages/gastos_pages.dart';
 import 'package:app_gastos/pages/historial.dart';
-//import 'package:AppControlGastos/pages/ona/estadisticas_page.dart';
+import 'package:app_gastos/pages/estadisticas_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +25,7 @@ class MainApp extends StatelessWidget {
         '/ingreso': (_) => const PantallaIngresos(),       // de Carolina
         '/gasto': (_)   => const PantallaGastos(),         // de Giuliana
         '/historial': (_) => const PantallaHistorial(),   // de Giuliana
-        /*
-        '/estadisticas': (_) => const EstadisticasPage(), // de Ona (cuando la suban)
-        */
+        '/estadisticas': (_) => const EstadisticasPage(), // de Ona 
       },
     );
   }

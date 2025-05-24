@@ -176,7 +176,7 @@ Widget build(BuildContext context) {
                           );
                         },
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       const Center(
                         child: Text(
                           'Gastos por categoría',

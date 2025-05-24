@@ -1,19 +1,21 @@
+import 'package:app_gastos/pages/inicio_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../pages/ingresos_page.dart'; // Importa IngresosPage
+import '../pages/estadisticas_page.dart'; // Importa EstadisticasPage
+import '../pages/historial.dart'; // Importa Historial (sí mismo)
+import '../pages/inicio_page.dart';
 
-// 📄 Pantalla que muestra el historial de ingresos y gastos en tiempo real
 class PantallaHistorial extends StatelessWidget {
   const PantallaHistorial({super.key});
 
-  // 🔁 Función que obtiene el historial en tiempo real combinando ingresos y gastos
   Stream<List<Map<String, dynamic>>> obtenerHistorial() async* {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) yield [];
 
     final firestore = FirebaseFirestore.instance;
 
-    // Streams individuales para ingresos y gastos
     final ingresosStream = firestore
         .collection('users')
         .doc(uid)
@@ -26,7 +28,6 @@ class PantallaHistorial extends StatelessWidget {
         .collection('gastos')
         .snapshots();
 
-    // 🔄 Escuchamos ingresos y combinamos con un snapshot puntual de gastos
     await for (final ingresos in ingresosStream) {
       final gastos = await gastosStream.first;
 
@@ -64,8 +65,6 @@ class PantallaHistorial extends StatelessWidget {
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-
-            // 🧠 Mostrar historial en tiempo real
             Expanded(
               child: StreamBuilder<List<Map<String, dynamic>>>(
                 stream: obtenerHistorial(),
@@ -85,8 +84,6 @@ class PantallaHistorial extends StatelessWidget {
                     itemCount: historial.length,
                     itemBuilder: (context, index) {
                       final item = historial[index];
-
-                      // 🧾 Formatear monto con puntos
                       final montoFormateado = item["monto"]
                           .toString()
                           .replaceAllMapped(
@@ -134,6 +131,22 @@ class PantallaHistorial extends StatelessWidget {
         backgroundColor: Colors.grey[300],
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black54,
+        currentIndex: 2, // Marcamos el historial como el actual
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const InicioPage()),
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const EstadisticasPage()),
+            );
+          } else if (index == 2) {
+            // Ya estamos en el historial
+          }
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ''),
