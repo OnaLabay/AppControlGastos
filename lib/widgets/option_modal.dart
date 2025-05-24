@@ -17,6 +17,7 @@ class OptionModal extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
+              Navigator.pushNamed(context, '/ingreso');
               // Aquí luego navegarás a la página 3
             },
             icon: const Icon(Icons.arrow_upward, color: Colors.white),
@@ -29,6 +30,7 @@ class OptionModal extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
+              Navigator.pushNamed(context, '/gasto');
               // Aquí luego navegarás a la página 4
             },
             icon: const Icon(Icons.arrow_downward, color: Colors.white),

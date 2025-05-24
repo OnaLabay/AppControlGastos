@@ -2,10 +2,7 @@
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/carolina
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
@@ -18,22 +15,12 @@ import 'package:flutter/foundation.dart'
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
-<<<<<<< HEAD
 /// 
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
-=======
-class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
->>>>>>> origin/carolina
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -41,21 +28,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-<<<<<<< HEAD
         return macos;
       case TargetPlatform.windows:
         return windows;
-=======
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
->>>>>>> origin/carolina
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -68,7 +43,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-<<<<<<< HEAD
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBVOQuaPhziKoBvieZIsxAPqw1ZNbXZkmQ',
     appId: '1:860991673714:web:682890cb7fff8cdf1fb9eb',
@@ -113,22 +87,5 @@ class DefaultFirebaseOptions {
     authDomain: 'aplicacion1ayl.firebaseapp.com',
     storageBucket: 'aplicacion1ayl.firebasestorage.app',
     measurementId: 'G-V08X1CWM0H',
-=======
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC1i_dPEQTFNycRKAuQ9_wugvTROLI1BM4',
-    appId: '1:688988414592:android:c31c2a7fd05f942074bc65',
-    messagingSenderId: '688988414592',
-    projectId: 'appsports-d323a',
-    storageBucket: 'appsports-d323a.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCypnpw9mlopuK83F_OAedxar43GYcQz6o',
-    appId: '1:688988414592:ios:d5c800198863b7dc74bc65',
-    messagingSenderId: '688988414592',
-    projectId: 'appsports-d323a',
-    storageBucket: 'appsports-d323a.firebasestorage.app',
-    iosBundleId: 'com.example.appsports',
->>>>>>> origin/carolina
   );
 }
