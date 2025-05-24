@@ -17,6 +17,7 @@ dependencies:
   provider: 
 
   english_words: 
+fl_chart: ^1.4.0  
 
 dev_dependencies:
   flutter_test:
