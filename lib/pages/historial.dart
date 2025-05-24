@@ -17,13 +17,13 @@ class PantallaHistorial extends StatelessWidget {
     final firestore = FirebaseFirestore.instance;
 
     final ingresosStream = firestore
-        .collection('users')
+        .collection('usuarios')
         .doc(uid)
         .collection('ingresos')
         .snapshots();
 
     final gastosStream = firestore
-        .collection('users')
+        .collection('usuarios')
         .doc(uid)
         .collection('gastos')
         .snapshots();

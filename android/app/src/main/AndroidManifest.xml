@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.app_control_gastos">
+    package="com.example.app_gastos">
     <application
         android:label="app_control_gastos"
         android:name="${applicationName}"

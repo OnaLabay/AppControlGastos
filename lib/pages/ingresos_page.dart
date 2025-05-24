@@ -1,3 +1,4 @@
+import 'package:app_gastos/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,26 +40,20 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
         _montoController.text.isNotEmpty &&
         _fechaController.text.isNotEmpty &&
         selectedCategoria != null) {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) return;
+      final monto = double.tryParse(_montoController.text) ?? 0;
+      if (monto <= 0) return;
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .collection('ingresos')
-          .add({
-        'titulo': _tituloController.text,
-        'monto': double.tryParse(_montoController.text) ?? 0,
-        'fecha': _fechaController.text,
-        'categoria': selectedCategoria,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      await FirebaseService().registrarIngreso(monto, selectedCategoria!);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ingreso agregado')),
       );
 
       cancelar();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioPage()),
+      );
     }
   }
 
@@ -81,17 +76,19 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
             return SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight - 60, 
+                  minHeight: viewportConstraints.maxHeight - 60,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                         child: Text(
                           'Agregar Ingresos',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -103,12 +100,14 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
                       TextField(
                         controller: _montoController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Monto', prefixText: '\$ '),
+                        decoration: const InputDecoration(
+                            labelText: 'Monto', prefixText: '\$ '),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _fechaController,
-                        decoration: const InputDecoration(labelText: 'Fecha (dd/mm/aaaa)'),
+                        decoration: const InputDecoration(
+                            labelText: 'Fecha (dd/mm/aaaa)'),
                       ),
                       const SizedBox(height: 16),
                       const Text('Categoría'),
@@ -129,13 +128,16 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
                                     });
                                   },
                                   style: OutlinedButton.styleFrom(
-                                    backgroundColor: isSelected ? color : Colors.white,
-                                    foregroundColor: isSelected ? Colors.white : color,
+                                    backgroundColor:
+                                        isSelected ? color : Colors.white,
+                                    foregroundColor:
+                                        isSelected ? Colors.white : color,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     side: BorderSide(color: color),
-                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 16),
                                   ),
                                   child: Center(child: Text(categoria)),
                                 ),
@@ -181,7 +183,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
         backgroundColor: Colors.grey[300],
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black54,
-        currentIndex: 1, 
+        currentIndex: 1,
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacement(
@@ -196,7 +198,8 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const PantallaHistorial()),
+              MaterialPageRoute(
+                  builder: (context) => const PantallaHistorial()),
             );
           }
         },

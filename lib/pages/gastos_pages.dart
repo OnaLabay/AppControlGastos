@@ -1,3 +1,4 @@
+import 'package:app_gastos/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,6 +64,11 @@ class _PantallaGastosState extends State<PantallaGastos> {
         'categoria': selectedCategoria,
         'timestamp': FieldValue.serverTimestamp(),
       });
+     
+      final monto = double.tryParse(_montoController.text) ?? 0.0;
+      if (monto <= 0) return;
+
+      await FirebaseService().registrarGasto(monto, selectedCategoria!);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Gasto agregado')),
@@ -73,7 +79,7 @@ class _PantallaGastosState extends State<PantallaGastos> {
       // Navegar a la pantalla de inicio después de agregar el gasto
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  InicioPage()),
+        MaterialPageRoute(builder: (context) => InicioPage()),
       );
     }
   }
@@ -97,17 +103,20 @@ class _PantallaGastosState extends State<PantallaGastos> {
             return SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight - 60, // Altura mínima menos la altura del BottomNavigationBar
+                  minHeight: viewportConstraints.maxHeight -
+                      60, // Altura mínima menos la altura del BottomNavigationBar
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                         child: Text(
                           'Agregar gastos',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -119,12 +128,14 @@ class _PantallaGastosState extends State<PantallaGastos> {
                       TextField(
                         controller: _montoController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Monto', prefixText: '\$ '),
+                        decoration: const InputDecoration(
+                            labelText: 'Monto', prefixText: '\$ '),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _fechaController,
-                        decoration: const InputDecoration(labelText: 'Fecha (dd/mm/aaaa)'),
+                        decoration: const InputDecoration(
+                            labelText: 'Fecha (dd/mm/aaaa)'),
                       ),
                       const SizedBox(height: 16),
                       const Text('Categoría'),
@@ -145,13 +156,16 @@ class _PantallaGastosState extends State<PantallaGastos> {
                                     });
                                   },
                                   style: OutlinedButton.styleFrom(
-                                    backgroundColor: isSelected ? color : Colors.white,
-                                    foregroundColor: isSelected ? Colors.white : color,
+                                    backgroundColor:
+                                        isSelected ? color : Colors.white,
+                                    foregroundColor:
+                                        isSelected ? Colors.white : color,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     side: BorderSide(color: color),
-                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 16),
                                   ),
                                   child: Center(child: Text(categoria)),
                                 ),
@@ -212,7 +226,8 @@ class _PantallaGastosState extends State<PantallaGastos> {
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const PantallaHistorial()),
+              MaterialPageRoute(
+                  builder: (context) => const PantallaHistorial()),
             );
           }
         },

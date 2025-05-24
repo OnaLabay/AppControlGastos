@@ -2,41 +2,70 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final DocumentReference<Map<String, dynamic>> _doc = FirebaseFirestore.instance.collection('usuarios').doc('usuario_demo');
-  
+  final DocumentReference<Map<String, dynamic>> _doc =
+      FirebaseFirestore.instance.collection('usuarios').doc('usuario_demo');
+
   Stream<Map<String, dynamic>> getResumen() {
     return _doc.snapshots().map((snap) {
       final data = snap.data()!;
       return {
-        'saldo':    (data['saldo']    as num).toDouble(),
+        'saldo': (data['saldo'] as num).toDouble(),
         'ingresos': (data['ingresos'] as num).toDouble(),
-        'gastos':   (data['gastos']   as num).toDouble(),
+        'gastos': (data['gastos'] as num).toDouble(),
       };
     });
   }
+
   /// Inicializa (o reinicia) el saldo, dejando ingresos y gastos a 0
   Future<void> inicializarSaldo(double monto) {
     return _doc.set({
-      'saldo':    monto,
+      'saldo': monto,
       'ingresos': 0.0,
-      'gastos':   0.0,
+      'gastos': 0.0,
     }, SetOptions(merge: true));
   }
 
   /// Registra un ingreso: incrementa 'ingresos' y 'saldo'
-  Future<void> registrarIngreso(double monto) {
-    return _doc.update({
+  Future<void> registrarIngreso(double monto, String categoria) async {
+    final userDoc = _db.collection('usuarios').doc('usuario_demo');
+    final batch = _db.batch();
+    // 1) actualiza saldo y gastos
+    batch.update(userDoc, {
       'ingresos': FieldValue.increment(monto),
       'saldo': FieldValue.increment(monto),
     });
+
+    // 2) graba el detalle en la subcolección
+    final newIngreso = userDoc.collection('ingresos').doc();
+    batch.set(newIngreso,{
+      'monto': monto,
+      'categoria': categoria,
+      'fecha': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   /// Registra un gasto: incrementa 'gastos' y decrementa 'saldo'
-  Future<void> registrarGasto(double monto) {
-    return _doc.update({
+  Future<void> registrarGasto(double monto, String categoria) async {
+    final userDoc = _db.collection('usuarios').doc('usuario_demo');
+    final batch = _db.batch();
+
+    // 1) actualiza saldo y gastos
+    batch.update(userDoc, {
       'gastos': FieldValue.increment(monto),
       'saldo': FieldValue.increment(-monto),
     });
+
+    // 2) graba el detalle en la subcolección
+    final newGasto = userDoc.collection('gastos').doc();
+    batch.set(newGasto, {
+      'monto': monto,
+      'categoria': categoria,
+      'fecha': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   Stream<Map<String, double>> getGastosPorCategoria() {
