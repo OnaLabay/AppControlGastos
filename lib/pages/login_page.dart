@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Importamos Firebase Auth
-import 'register_page.dart';
-import 'estadisticas_page.dart';
+//import 'register_page.dart';
+//import 'estadisticas_page.dart';
 
 // StatefulWidget porque vamos a manejar estado (errores, inputs, etc.)
 class LoginPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
       // Si se loguea correctamente, va a la pantalla de inicio (ajustá '/home' si usás otra)
       Navigator.pushReplacementNamed(
         context,
-        '/inicio_page',
+        '/estadisticas_page',
       ); //ACA VA LA PANTALA DE LA VALE
     } on FirebaseAuthException catch (e) {
       // Si falla el login, mostramos el error devuelto por Firebase
@@ -124,6 +124,12 @@ class _LoginPageState extends State<LoginPage> {
                 child: const Text("¿No tenés cuenta? Registrate acá"),
               ),
               const SizedBox(height: 50),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/estadisticas_page');
+                },
+                child: const Text("Pagina Estadisticas"),
+              ),
             ],
           ),
         ),

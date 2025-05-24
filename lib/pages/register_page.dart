@@ -32,9 +32,16 @@ class _RegisterPageState extends State<RegisterPage> {
         email: email,
         password: password,
       );
-      setState(() {
-        _errorMessage = '¡Registro exitoso!';
-      });
+      // Mostrar un mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario registrado correctamente')),
+      );
+
+      // Esperar 3 segundos
+      await Future.delayed(const Duration(seconds: 3));
+
+      // Navegar a la pantalla de login (reemplazá por la ruta que estés usando)
+      Navigator.pushReplacementNamed(context, '/');
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message ?? 'Error desconocido';

@@ -1,52 +1,79 @@
 import 'package:flutter/material.dart';
+import '../widgets/grafico_estadisticas.dart'; // Ruta al widget del gráfico
+// Importar las demás páginas para la navegación
+//import 'inicio_page.dart';
+//import 'menu_page.dart';
 
-class EstadisticasPage extends StatelessWidget {
+/// Pantalla principal de estadísticas con filtro por mes y navegación inferior
+class EstadisticasPage extends StatefulWidget {
   const EstadisticasPage({super.key});
+
+  @override
+  State<EstadisticasPage> createState() => _EstadisticasPageState();
+}
+
+class _EstadisticasPageState extends State<EstadisticasPage> {
+  // Lista de meses para el filtro
+  final List<String> meses = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
+  ];
+  String mesSeleccionado = 'Mayo'; // Mes por defecto
+
+  // Función para manejar la navegación al tocar un ícono
+  void _onItemTapped(int index) {
+    if (index == 0) {
+      // Si toca el ícono de Inicio, navegamos a InicioPage
+      Navigator.pushReplacementNamed(context, '/inicio_page');
+    } else if (index == 1) {
+      // Si toca el ícono de Estadísticas, ya estamos aquí, no hacemos nada
+    } else if (index == 2) {
+      // Si toca el ícono de Historial, navegamos a Historial
+      Navigator.pushReplacementNamed(context, '/historial_page');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Color de fondo de toda la pantalla (gris claro)
-      backgroundColor: const Color(0xFFEFEFEF),
-
-      // SafeArea evita que el contenido quede debajo de la barra de estado del celular
+      backgroundColor: const Color(0xFFEFEFEF), // Fondo gris claro
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(
-            16.0,
-          ), // Espaciado interno de la pantalla
+          padding: const EdgeInsets.all(16.0), // Espacio alrededor
           child: Column(
             children: [
-              // Título principal "Estadísticas"
+              // Título principal
               const Text(
                 'Estadísticas',
                 style: TextStyle(
-                  fontSize: 24, // Tamaño del texto
-                  fontWeight: FontWeight.bold, // Negrita
-                  decorationThickness: 2, // Grosor de la línea
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  decorationThickness: 2,
                 ),
               ),
-
-              const SizedBox(
-                height: 16,
-              ), // Espacio entre el título y el contenedor blanco
-              // Contenedor blanco principal donde van los datos
+              const SizedBox(height: 16), // Espacio después del título
+              // Contenedor blanco con el contenido
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(
-                    16,
-                  ), // Espacio interno del contenedor
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
-                    borderRadius: BorderRadius.circular(
-                      20,
-                    ), // Bordes redondeados
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Alinear a la izquierda
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Subtítulo "Gastos Mensuales"
+                      // Subtítulo
                       const Text(
                         'Gastos Mensuales',
                         style: TextStyle(
@@ -54,32 +81,32 @@ class EstadisticasPage extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      const SizedBox(height: 16),
 
-                      const SizedBox(
-                        height: 16,
-                      ), // Espacio entre título y dropdown
-                      // Dropdown para seleccionar "Fecha" (más filtros pueden agregarse después)
+                      // Dropdown para seleccionar mes
                       DropdownButton<String>(
-                        value: 'Fecha', // Valor seleccionado por defecto
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Fecha',
-                            child: Text('Fecha'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          // En esta función se manejará el cambio de selección
+                        value: mesSeleccionado,
+                        items:
+                            meses.map((mes) {
+                              return DropdownMenuItem(
+                                value: mes,
+                                child: Text(mes),
+                              );
+                            }).toList(),
+                        onChanged: (nuevoMes) {
+                          if (nuevoMes != null) {
+                            setState(() {
+                              mesSeleccionado = nuevoMes;
+                            });
+                          }
                         },
                       ),
 
                       const SizedBox(height: 24), // Espacio antes del gráfico
-                      // Placeholder del gráfico: esto se reemplazará por el gráfico real en el próximo paso
+                      // Gráfico de gastos filtrado por mes
                       Expanded(
-                        child: Center(
-                          child: Text(
-                            '📊 Aquí irá el gráfico de barras',
-                            style: TextStyle(color: Colors.grey),
-                          ),
+                        child: EstadisticasGrafico(
+                          mesSeleccionado: mesSeleccionado,
                         ),
                       ),
                     ],
@@ -91,23 +118,24 @@ class EstadisticasPage extends StatelessWidget {
         ),
       ),
 
-      // Barra inferior de navegación con tres íconos
+      // Barra de navegación inferior con navegación simple entre pantallas
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Índice actual (el segundo ícono: gráfico)
-        backgroundColor: Color(0xFFEFEFEF),
+        currentIndex: 1, // Página actual: Estadísticas (índice 1)
+        onTap: _onItemTapped, // Maneja los toques en los íconos
+        backgroundColor: const Color(0xFFEFEFEF),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home), // Primer ícono: casa
-            label: '', // Sin texto debajo
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart), // Segundo ícono: estadísticas
+            icon: Icon(Icons.home),
             label: '',
-          ),
+          ), // Índice 0
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu), // Tercer ícono: menú
+            icon: Icon(Icons.bar_chart),
             label: '',
-          ),
+          ), // Índice 1
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu),
+            label: '',
+          ), // Índice 2
         ],
       ),
     );
