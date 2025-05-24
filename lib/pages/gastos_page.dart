@@ -1,40 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../pages/inicio_page.dart';
+import '../pages/login_page.dart';
 import '../pages/estadisticas_page.dart';
 import '../pages/historial.dart';
+import '../pages/ingresos_page.dart';
+import '../pages/inicio_page.dart';
 
-class PantallaIngresos extends StatefulWidget {
-  const PantallaIngresos({super.key});
+class PantallaGastos extends StatefulWidget {
+  const PantallaGastos({super.key});
 
   @override
-  State<PantallaIngresos> createState() => _PantallaIngresosState();
+  State<PantallaGastos> createState() => _PantallaGastosState();
 }
 
-class _PantallaIngresosState extends State<PantallaIngresos> {
+class _PantallaGastosState extends State<PantallaGastos> {
   final _tituloController = TextEditingController();
   final _montoController = TextEditingController();
   final _fechaController = TextEditingController();
   String? selectedCategoria;
 
   final List<String> categorias = [
-    'sueldo',
-    'ventas',
-    'regalos',
-    'intereses',
-    'otros',
+    'alimentos',
+    'educacion',
+    'transporte',
+    'vivienda',
+    'salud',
+    'entretenimiento',
+    'ropa',
+    'deudas',
+    'varios',
   ];
 
   final Map<String, Color> categoriaColors = {
-    'sueldo': Colors.green,
-    'ventas': Colors.blue,
-    'regalos': Colors.purple,
-    'intereses': Colors.orange,
-    'otros': Colors.grey,
+    'alimentos': Colors.orange,
+    'educacion': Colors.blue,
+    'transporte': Colors.green,
+    'vivienda': Colors.brown,
+    'salud': Colors.red,
+    'entretenimiento': Colors.purple,
+    'ropa': Colors.pink,
+    'deudas': Colors.teal,
+    'varios': Colors.grey,
   };
 
-  void agregarIngreso() async {
+  void agregarGasto() async {
     if (_tituloController.text.isNotEmpty &&
         _montoController.text.isNotEmpty &&
         _fechaController.text.isNotEmpty &&
@@ -45,7 +55,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
-          .collection('ingresos')
+          .collection('gastos')
           .add({
         'titulo': _tituloController.text,
         'monto': double.tryParse(_montoController.text) ?? 0,
@@ -55,10 +65,16 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingreso agregado')),
+        const SnackBar(content: Text('Gasto agregado')),
       );
 
-      cancelar();
+      cancelar(); // Limpia los campos
+
+      // Navegar a la pantalla de inicio después de agregar el gasto
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  InicioPage()),
+      );
     }
   }
 
@@ -81,7 +97,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
             return SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight - 60, 
+                  minHeight: viewportConstraints.maxHeight - 60, // Altura mínima menos la altura del BottomNavigationBar
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -90,7 +106,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
                     children: [
                       Center(
                         child: Text(
-                          'Agregar Ingresos',
+                          'Agregar gastos',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -149,7 +165,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ElevatedButton(
-                            onPressed: agregarIngreso,
+                            onPressed: agregarGasto,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
                               foregroundColor: Colors.white,
@@ -181,7 +197,7 @@ class _PantallaIngresosState extends State<PantallaIngresos> {
         backgroundColor: Colors.grey[300],
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black54,
-        currentIndex: 1, 
+        currentIndex: 1, // Estás en la sección de "gastos"
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacement(

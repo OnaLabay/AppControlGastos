@@ -10,13 +10,13 @@ dependencies:
   flutter:
     sdk: flutter
   
-  cupertino_icons: ^1.0.2
-  provider: ^6.0.6
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.16.0
-  cloud_firestore: ^4.17.5
-  fl_chart: ^1.0.0     # la última versión estable
-  english_words: ^4.0.0
+  cupertino_icons:
+  firebase_auth: 
+  firebase_core: 
+  cloud_firestore: 
+  provider: 
+
+  english_words: 
 
 dev_dependencies:
   flutter_test:
