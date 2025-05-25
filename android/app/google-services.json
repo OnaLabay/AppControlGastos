@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288927594584",
+    "project_id": "controlgastos-5e467",
+    "storage_bucket": "controlgastos-5e467.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288927594584:android:200c8a3bd5fc891589b22d",
+        "android_client_info": {
+          "package_name": "com.example.app_gastos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwuIaZw1veeKJFrvoxampqzVvX6r96TOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

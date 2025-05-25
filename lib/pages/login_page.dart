@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Importamos Firebase Auth
-//import 'register_page.dart';
-//import 'estadisticas_page.dart';
+import 'register_page.dart';
+import 'inicio_page.dart';
+import 'estadisticas_page.dart';
 
 // StatefulWidget porque vamos a manejar estado (errores, inputs, etc.)
 class LoginPage extends StatefulWidget {
@@ -29,10 +30,10 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       // Si se loguea correctamente, va a la pantalla de inicio (ajustá '/home' si usás otra)
-      Navigator.pushReplacementNamed(
+      Navigator.pushReplacement(
         context,
-        '/estadisticas_page',
-      ); //ACA VA LA PANTALA DE LA VALE
+        MaterialPageRoute(builder: (context) => InicioPage()),
+      );
     } on FirebaseAuthException catch (e) {
       // Si falla el login, mostramos el error devuelto por Firebase
       setState(() {
@@ -67,8 +68,8 @@ class _LoginPageState extends State<LoginPage> {
                 'Iniciar sesión',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 100),
 
@@ -119,17 +120,11 @@ class _LoginPageState extends State<LoginPage> {
               // Botón para ir a la pantalla de registro
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/register_page');
+                  Navigator.pushNamed(context, '/register');
                 },
                 child: const Text("¿No tenés cuenta? Registrate acá"),
               ),
               const SizedBox(height: 50),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/estadisticas_page');
-                },
-                child: const Text("Pagina Estadisticas"),
-              ),
             ],
           ),
         ),

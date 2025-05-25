@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/grafico_estadisticas.dart'; // Ruta al widget del gráfico
-// Importar las demás páginas para la navegación
-//import 'inicio_page.dart';
-//import 'menu_page.dart';
+import '../widgets/grafico_estadisticas.dart';
+import 'inicio_page.dart';
+import 'historial.dart';
 
-/// Pantalla principal de estadísticas con filtro por mes y navegación inferior
 class EstadisticasPage extends StatefulWidget {
   const EstadisticasPage({super.key});
 
@@ -13,86 +11,87 @@ class EstadisticasPage extends StatefulWidget {
 }
 
 class _EstadisticasPageState extends State<EstadisticasPage> {
-  // Lista de meses para el filtro
-  final List<String> meses = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
-  ];
-  String mesSeleccionado = 'Mayo'; // Mes por defecto
+  // Generar lista dinámica de últimos 12 meses
+  List<String> obtenerUltimos12Meses() {
+    final now = DateTime.now();
+    return List.generate(12, (index) {
+      final fecha = DateTime(now.year, now.month - index, 1);
+      final mes = fecha.month;
+      final anio = fecha.year;
+      final nombreMes = _nombreMes(mes);
+      return '$nombreMes $anio';
+    });
+  }
 
-  // Función para manejar la navegación al tocar un ícono
+  String _nombreMes(int mes) {
+    const meses = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
+    ];
+    return meses[mes - 1];
+  }
+
+  late String mesSeleccionado; // Selección inicial
+
+  @override
+  void initState() {
+    super.initState();
+    mesSeleccionado = obtenerUltimos12Meses().first; // Mes actual por defecto
+  }
+
   void _onItemTapped(int index) {
     if (index == 0) {
-      // Si toca el ícono de Inicio, navegamos a InicioPage
-      Navigator.pushReplacementNamed(context, '/inicio_page');
+      Navigator.pushReplacementNamed(context, '/inicio');
     } else if (index == 1) {
-      // Si toca el ícono de Estadísticas, ya estamos aquí, no hacemos nada
+      // ya estamos aquí
     } else if (index == 2) {
-      // Si toca el ícono de Historial, navegamos a Historial
-      Navigator.pushReplacementNamed(context, '/historial_page');
+      Navigator.pushReplacementNamed(context, '/historial');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final meses = obtenerUltimos12Meses(); // Opciones del dropdown
+
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFEF), // Fondo gris claro
+      backgroundColor: const Color(0xFFEFEFEF),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Espacio alrededor
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Título principal
-              const Text(
-                'Estadísticas',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  decorationThickness: 2,
-                ),
-              ),
-              const SizedBox(height: 16), // Espacio después del título
-              // Contenedor blanco con el contenido
+              const Text('Estadísticas',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Subtítulo
-                      const Text(
-                        'Gastos Mensuales',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      const Text('Gastos por día del mes',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 16),
-
-                      // Dropdown para seleccionar mes
                       DropdownButton<String>(
                         value: mesSeleccionado,
-                        items:
-                            meses.map((mes) {
-                              return DropdownMenuItem(
-                                value: mes,
-                                child: Text(mes),
-                              );
-                            }).toList(),
+                        items: meses
+                            .map((mes) =>
+                                DropdownMenuItem(value: mes, child: Text(mes)))
+                            .toList(),
                         onChanged: (nuevoMes) {
                           if (nuevoMes != null) {
                             setState(() {
@@ -101,14 +100,10 @@ class _EstadisticasPageState extends State<EstadisticasPage> {
                           }
                         },
                       ),
-
-                      const SizedBox(height: 24), // Espacio antes del gráfico
-                      // Gráfico de gastos filtrado por mes
+                      const SizedBox(height: 24),
                       Expanded(
-                        child: EstadisticasGrafico(
-                          mesSeleccionado: mesSeleccionado,
-                        ),
-                      ),
+                          child: EstadisticasGrafico(
+                              mesSeleccionado: mesSeleccionado)),
                     ],
                   ),
                 ),
@@ -117,25 +112,14 @@ class _EstadisticasPageState extends State<EstadisticasPage> {
           ),
         ),
       ),
-
-      // Barra de navegación inferior con navegación simple entre pantallas
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Página actual: Estadísticas (índice 1)
-        onTap: _onItemTapped, // Maneja los toques en los íconos
+        currentIndex: 1,
+        onTap: _onItemTapped,
         backgroundColor: const Color(0xFFEFEFEF),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ), // Índice 0
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '',
-          ), // Índice 1
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: '',
-          ), // Índice 2
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: ''),
         ],
       ),
     );

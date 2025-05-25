@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'inicio_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -32,16 +33,13 @@ class _RegisterPageState extends State<RegisterPage> {
         email: email,
         password: password,
       );
-      // Mostrar un mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario registrado correctamente')),
-      );
-
-      // Esperar 3 segundos
-      await Future.delayed(const Duration(seconds: 3));
-
-      // Navegar a la pantalla de login (reemplazá por la ruta que estés usando)
-      Navigator.pushReplacementNamed(context, '/');
+      setState(() {
+        _errorMessage = '¡Registro exitoso!';
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => InicioPage()),
+        );
+      });
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message ?? 'Error desconocido';
@@ -52,7 +50,11 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Registro")),
+      appBar: AppBar(
+        title: const Text("Registro"),
+        backgroundColor: Colors.deepPurple,
+      ),
+      backgroundColor: Colors.deepPurple,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -62,23 +64,21 @@ class _RegisterPageState extends State<RegisterPage> {
             Center(
               child: Text(
                 "¡Bienvenido/a!",
-
                 style: TextStyle(
                   fontSize: 50,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-
             const SizedBox(height: 60),
             const Text(
               'Registrarse para continuar',
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 30),
@@ -104,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ElevatedButton(
               onPressed: _register,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
@@ -112,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               child: const Text(
                 "Registrarse",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.black),
               ),
             ),
             if (_errorMessage.isNotEmpty) ...[
