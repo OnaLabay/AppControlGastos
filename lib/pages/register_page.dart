@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'inicio_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -34,6 +35,10 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       setState(() {
         _errorMessage = '¡Registro exitoso!';
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => InicioPage()),
+        );
       });
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -55,7 +60,6 @@ class _RegisterPageState extends State<RegisterPage> {
             Center(
               child: Text(
                 "¡Bienvenido/a!",
-
                 style: TextStyle(
                   fontSize: 50,
                   fontWeight: FontWeight.bold,
@@ -64,7 +68,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-
             const SizedBox(height: 60),
             const Text(
               'Registrarse para continuar',
