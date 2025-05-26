@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/firebase_service.dart';
 import '../widgets/option_modal.dart';
+import 'estadisticas_page.dart';
+import 'historial.dart';
 
 class InicioPage extends StatelessWidget {
   const InicioPage({Key? key}) : super(key: key);
@@ -47,7 +49,7 @@ class InicioPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título principal "Inicio"
+            // --- Título principal ---
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Text(
@@ -55,8 +57,7 @@ class InicioPage extends StatelessWidget {
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
             ),
-
-            // Contenedor blanco principal
+            // --- Contenedor principal blanco ---
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -68,7 +69,7 @@ class InicioPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Saldo Total con gesto para modificar
+                    // --- Saldo total con gesto para modificar ---
                     StreamBuilder<Map<String, dynamic>>(
                       stream: firebaseService.getResumen(),
                       builder: (context, snapshot) {
@@ -110,8 +111,7 @@ class InicioPage extends StatelessWidget {
                         );
                       },
                     ),
-
-                    // Ingresos y Gastos
+                    // --- Ingresos y gastos ---
                     Row(
                       children: [
                         Expanded(
@@ -181,11 +181,8 @@ class InicioPage extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    const SizedBox(
-                        height: 16), // Espacio antes del texto del gráfico
-
-                    // 🔥 Texto Gastos por categoría (más arriba)
+                    const SizedBox(height: 16),
+                    // --- Texto Gastos por categoría ---
                     const Center(
                       child: Text(
                         'Gastos por categoría',
@@ -193,10 +190,8 @@ class InicioPage extends StatelessWidget {
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // 🔥 Gráfico de torta (PieChart)
+                    // --- Gráfico de torta (PieChart) ---
                     Expanded(
                       child: StreamBuilder<Map<String, double>>(
                         stream: firebaseService.getGastosPorCategoria(),
@@ -253,8 +248,7 @@ class InicioPage extends StatelessWidget {
           ],
         ),
       ),
-
-      // 🔥 Botón flotante para agregar opciones
+      // --- Botón flotante para opciones ---
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -269,6 +263,39 @@ class InicioPage extends StatelessWidget {
         child: const Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+      // --- Barra inferior adaptada con iconos y navegación ---
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6.0,
+        color: const Color(0xFFF0F0F0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: SizedBox(
+            height: 60.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.home, size: 30),
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/inicio'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.bar_chart, size: 30),
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/estadisticas'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.menu, size: 30),
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/historial'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
